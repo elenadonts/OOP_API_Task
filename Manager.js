@@ -16,7 +16,7 @@ class Manager extends Employee {
     }
 
     getAdjustedSalary() {
-        let salary = this.getAdjustedBasicEmployeeSalary(this.salary);
+        let salary = super.getAdjustedSalary();
         if (this.team.length > 10) {
             salary += 300;
         }
@@ -33,6 +33,9 @@ class Manager extends Employee {
 
     addNewTeamMembers(members) {
         this.team = [...this.team, ...members];
+        this.team.forEach((member) => {
+            member.setManager(this);
+        })
     }
 }
 module.exports.Manager = Manager;

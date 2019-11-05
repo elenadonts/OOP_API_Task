@@ -11,7 +11,12 @@ class Employee {
         return this.salary;
     }
 
-    getAdjustedBasicEmployeeSalary(salary) {
+    setManager(manager) {
+        this.manager = manager;
+    }
+
+    getAdjustedSalary() {
+        let salary = this.salary;
         const fiveYearBonus = 500, twoYearBonus = 200;
         if (this.experience > 5) {
             salary = salary* 1.2 + fiveYearBonus;

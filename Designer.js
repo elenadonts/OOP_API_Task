@@ -7,7 +7,7 @@ class Designer extends Employee {
     }
 
     getAdjustedSalary() {
-        return Math.round(this.getAdjustedBasicEmployeeSalary(this.salary) * this.effectivenessCoefficient);
+        return Math.round(super.getAdjustedSalary() * this.effectivenessCoefficient);
     }
 
     validateEffectivenessCoefficient(coefficient) {

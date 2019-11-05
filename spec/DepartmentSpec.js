@@ -84,10 +84,24 @@ describe("Department", () => {
         department = new Department([manager1, manager2]);
     });
 
-    it("validates salary information length", () => {
+    it("validates salary information array length", () => {
         const employeesInDepartmentCount = department.managersList.length * (developersCount + designersCount);
         expect(department.getSalaryInformation()).toBeDefined();
         expect(department.getSalaryInformation().length).toEqual(employeesInDepartmentCount);
+    });
+
+    it("validates new manager was added to the department", () => {
+        const initialManagersCount = department.managersList.length;
+        const newManager = new Manager("John", "Smith", 4000, 2);
+        department.addNewManager(newManager);
+        expect(department.managersList.length).toEqual(initialManagersCount + 1);
+    });
+
+    it("validates the total number of employees in the department", () => {
+        const expectedLength = department.getAllManagers().reduce((total, manager) => {
+            return total + manager.getTeamMembers().length;
+        }, 0);
+        expect(department.getAllEmployeesInTheDepartment().length).toEqual(expectedLength);
     });
 });
 
