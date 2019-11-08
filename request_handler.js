@@ -14,8 +14,7 @@ function initializeAndFillNewDepartment() {
     const manager2 = new Manager("Ivan", "Ivanov", 5000, 8);
     manager1.addNewTeamMembers(initializeAndFillNewTeam(6, 5));
     manager2.addNewTeamMembers(initializeAndFillNewTeam(5, 4));
-    let department = new Department([manager1, manager2]);
-    return department;
+    return new Department([manager1, manager2]);
 }
 
 function initializeAndFillNewTeam(devsCount, designersCount) {
@@ -37,7 +36,12 @@ function getEmployeeId(employeeToFind) {
     return department.getAllEmployees().findIndex(employee => employeeToFind === employee);
 }
 
-//GET {"type": "designer", "id": 0, "manager_id": 1, other data...},
+function employeeIsAlreadyInTheTeam(employeeId, managerId) {
+    const team = department.getAllManagers()[managerId].getTeamMembers();
+    const employee = department.getAllEmployees()[employeeId];
+    return team.includes(employee);
+}
+
 exports.getAllEmployees = function () {
     let employees = [];
     department.employees.forEach((employee, index) => {
@@ -48,10 +52,9 @@ exports.getAllEmployees = function () {
         if (type === DESIGNER) result.effectivenessCoefficient = employee.effectivenessCoefficient;
         employees.push(result);
     });
-    return JSON.stringify(employees);
+    return employees;
 };
 
-//POST /api/v1/employees should accept an object {"type": "designer", other data...} (no id in post, as client does not know it when creating new employees) and depending on type field create an instance of Developer or Designer.
 exports.addNewEmployee = function(reqBody) {
     let employee = null;
     switch (reqBody.type) {
@@ -70,20 +73,17 @@ exports.addNewEmployee = function(reqBody) {
     return (department.employees.length - 1).toString();
 };
 
-//GET /api/v1/employees/:id should return all info about specific employee from general employee list in format ["type": "designer", "id": 0, "salary": 1500, other data...}, here you should return the employee's salary with bonuses!
 exports.getEmployeeInfo = function(employeeId) {
-    const id = Number(employeeId);
-    if (id >= department.getAllEmployees().length || id < 0) throw new Error("Employee doesn't exist");
-    const employee = department.getAllEmployees()[id];
+    if (employeeId >= department.getAllEmployees().length || employeeId < 0) throw new Error("Employee doesn't exist");
+    const employee = department.getAllEmployees()[employeeId];
     const type = employee.constructor.name.toLowerCase();
     const managerId = getManagerIdForEmployee(employee);
-    const result = {type: type, id: id, managerId: managerId, firstName: employee.firstName,
+    const result = {type: type, id: employeeId, managerId: managerId, firstName: employee.firstName,
         lastName: employee.lastName, experience: employee.experience, salary: employee.getAdjustedSalary()};
     if (type === DESIGNER) result.effectivenessCoefficient = employee.effectivenessCoefficient;
     return result;
 };
 
-//GET /api/v1/managers should return a list of all managers in format [{"type": "manager", "id": 0, other data...}]
 exports.getAllManagers = function () {
     let managers = [];
     department.getAllManagers().forEach((manager, index) => {
@@ -91,10 +91,9 @@ exports.getAllManagers = function () {
             lastName: manager.lastName, experience: manager.experience, salary: manager.salary};
         managers.push(managerToAdd);
     });
-    return JSON.stringify(managers);
+    return managers;
 };
 
-// POST /api/v1/managers should accept an object {"type": "manager", other data...}
 exports.addNewManager = function(reqBody) {
     if (reqBody.type !== MANAGER) throw new Error('Entity passed is not a manager');
     let manager = new Manager(reqBody.firstName, reqBody.lastName,
@@ -103,22 +102,18 @@ exports.addNewManager = function(reqBody) {
     return (department.getAllManagers().length - 1).toString();
 };
 
-//GET /api/v1/managers/:id should return all info about specific manager in format ["type": "manager", "id": 0, "salary": 1500, other data...}
 exports.getManagerInfo = function(managerId) {
-    const id = Number(managerId);
-    if (id >= department.getAllManagers().length || id < 0) throw new Error("Manager doesn't exist");
-    const manager = department.getAllManagers()[id];
+    if (managerId >= department.getAllManagers().length || managerId < 0) throw new Error("Manager doesn't exist");
+    const manager = department.getAllManagers()[managerId];
     const type = manager.constructor.name.toLowerCase();
-    return {type: type, id: id, firstName: manager.firstName,
+    return {type: type, id: managerId, firstName: manager.firstName,
         lastName: manager.lastName, experience: manager.experience, salary: manager.getAdjustedSalary()};
 };
 
-// GET /api/v1/managers/:id/team should return a list of this manager's team in format [{"type": "designer", "id": 0, other data...}, {"type
 exports.getManagerTeam = function(managerId) {
     let teamMembers = [];
-    const id = Number(managerId);
-    if (id >= department.getAllManagers().length || id < 0) throw new Error("Manager doesn't exist");
-    const manager = department.getAllManagers()[id];
+    if (managerId >= department.getAllManagers().length || managerId < 0) throw new Error("Manager doesn't exist");
+    const manager = department.getAllManagers()[managerId];
     manager.getTeamMembers().forEach((member) => {
         const type = member.constructor.name.toLowerCase();
         const employeeId = getEmployeeId(member);
@@ -127,15 +122,15 @@ exports.getManagerTeam = function(managerId) {
         if (type === DESIGNER) teamMember.effectivenessCoefficient = member.effectivenessCoefficient;
         teamMembers.push(teamMember);
     });
-    return JSON.stringify(teamMembers);
+    return teamMembers;
 };
 
-// POST /api/v1/managers/:id/team should accept an object {"employee_id": 0} and should add an employee from general employee list by his employee_id (or index) to manager's team
 exports.addEmployeeToManagerTeam = function (employeeId, managerId) {
     if (managerId >= department.getAllManagers().length || managerId < 0) throw new Error("Manager doesn't exist");
     if (employeeId >= department.getAllEmployees().length || employeeId < 0) throw new Error("Employee doesn't exist");
+    if (employeeIsAlreadyInTheTeam(employeeId, managerId)) throw new Error("Employee is already in this team");
     const manager = department.getAllManagers()[managerId];
     const employee = department.getAllEmployees()[employeeId];
     manager.addNewTeamMembers([employee]);
-    return JSON.stringify({teamLength: manager.getTeamMembers().length});
+    return {teamLength: manager.getTeamMembers().length};
 };
