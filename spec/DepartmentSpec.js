@@ -1,8 +1,8 @@
-const { Developer } = require ("../Developer");
-const { Designer } = require ("../Designer");
-const { Manager } = require ("../Manager");
-const { Employee } = require ("../Employee");
-const { Department } = require ("../Department");
+const { Developer } = require ("../src/Developer");
+const { Designer } = require ("../src/Designer");
+const { Manager } = require ("../src/Manager");
+const { Employee } = require ("../src/Employee");
+const { Department } = require ("../src/Department");
 
 describe("Developer",  () => {
     it("validates final developer's salary of 1700", () => {
