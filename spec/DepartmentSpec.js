@@ -1,23 +1,20 @@
-const { Developer } = require ("../src/Developer");
-const { Designer } = require ("../src/Designer");
-const { Manager } = require ("../src/Manager");
-const { Employee } = require ("../src/Employee");
-const { Department } = require ("../src/Department");
+const { Developer } = require ("../dist/Developer");
+const { Designer } = require ("../dist/Designer");
+const { Manager } = require ("../dist/Manager");
+const { Employee } = require ("../dist/Employee");
+const { Department } = require ("../dist/Department");
 
 describe("Developer",  () => {
     it("validates final developer's salary of 1700", () => {
         const baseSalary = 1000, adjustedSalary = 1700, experience = 6;
         const dev = new Developer("John", "Smith", baseSalary, experience);
         expect(dev.getAdjustedSalary()).toEqual(adjustedSalary);
-        expect(dev.getBaseSalary()).toEqual(baseSalary);
-
     });
 
     it("validates final developer's salary of 1000", () => {
         const baseSalary = 1000, adjustedSalary = 1000, experience = 1;
         const dev = new Developer("John", "Smith", baseSalary, experience);
         expect(dev.getAdjustedSalary()).toEqual(adjustedSalary);
-        expect(dev.getBaseSalary()).toEqual(baseSalary);
     });
 });
 
@@ -26,7 +23,6 @@ describe("Designer", () => {
         const baseSalary = 2000, adjustedSalary = 1606, experience = 5, effectiveness = 0.73;
         const des = new Designer("Ivan", "Ivanov", baseSalary, experience, effectiveness);
         expect(des.getAdjustedSalary()).toEqual(adjustedSalary);
-        expect(des.getBaseSalary()).toEqual(baseSalary);
     });
 
     it("checks if effectiveness coefficient is set undefined when it's invalid", () => {
@@ -86,7 +82,6 @@ describe("Department", () => {
 
     it("validates salary information array length", () => {
         const employeesInDepartmentCount = department.managersList.length * (developersCount + designersCount);
-        expect(department.getSalaryInformation()).toBeDefined();
         expect(department.getSalaryInformation().length).toEqual(employeesInDepartmentCount);
     });
 
